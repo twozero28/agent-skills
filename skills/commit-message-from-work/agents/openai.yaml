@@ -1,0 +1,7 @@
+interface:
+  display_name: "Commit Message From Work"
+  short_description: "현재 작업을 한국어 커밋 메시지로 정리"
+  default_prompt: "Use $commit-message-from-work to turn the current work into a copy-paste-ready Korean Conventional Commit message."
+
+policy:
+  allow_implicit_invocation: true

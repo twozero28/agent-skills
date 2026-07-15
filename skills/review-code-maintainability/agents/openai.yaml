@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review Code Maintainability"
+  short_description: "코드 구조·가독성·유지보수성을 실익 중심으로 리뷰"
+  default_prompt: "Use $review-code-maintainability to review the current code for structure, readability, and practical refactoring opportunities."
