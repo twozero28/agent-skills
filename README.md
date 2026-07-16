@@ -7,7 +7,7 @@
 | 스킬 | 설명 |
 | --- | --- |
 | [`review-code-maintainability`](./skills/review-code-maintainability/README.md) | 코드 구조와 가독성, 책임 분리, 변경 비용을 중심으로 리뷰합니다. |
-| [`commit-message-from-work`](./skills/commit-message-from-work/README.md) | 현재 작업을 복사해서 바로 쓸 수 있는 한국어 커밋 메시지로 정리합니다. |
+| [`commit-message-from-work`](./skills/commit-message-from-work/README.md) | 현재 작업을 사용자 언어의 Conventional Commit 메시지로 정리합니다. |
 
 ## 설치
 

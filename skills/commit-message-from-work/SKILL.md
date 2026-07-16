@@ -1,27 +1,34 @@
 ---
 name: commit-message-from-work
-description: Use when the user asks for a Korean copy-paste-ready Conventional Commit message from the current work, conversation context, staged changes, git diff, or a specified file/module/range. Triggers on Korean requests like "커밋메세지 추천", "커밋제목이랑 본문", "지금까지 한 거 커밋 메시지", "복붙가능한 커밋 메시지", and requests for a commit message for a specific part or range.
+description: Use when the user asks for a copy-paste-ready Conventional Commit message from the current work, conversation context, staged changes, git diff, or a specified file/module/range. Write the subject summary and body in the user's requested or inferred language while keeping the Conventional Commit type and scope in English or stable domain identifiers. Triggers include requests for a commit message, title and body, or a message for a specific scope or range.
 ---
 
 # Commit Message From Work
 
-Create one copy-paste-ready Conventional Commit message in Korean.
+Create one copy-paste-ready Conventional Commit message in the user's selected language. Keep the Conventional Commit type and scope in English or stable domain identifiers.
 
 This skill is for turning the current work into a commit message. If the user does not name a target, summarize the work done so far. If the user names a file, module, feature, staged area, commit range, branch range, or other scope, write the message only for that target.
+
+## Language Selection
+
+Choose the language for the subject summary and body in this order:
+
+1. Use the language explicitly requested by the user.
+2. Otherwise, use the agent's configured response language or the language already established for responses in the current conversation.
+3. If no preference is established, use the language the user is currently using.
+4. If the language is still unclear, use English.
+
+Apply the selected language consistently to the subject summary and all body prose. Preserve API names, entity names, file names, table names, and other technical identifiers in their original form.
 
 ## Default Output
 
 Return a single fenced `text` block:
 
 ```text
-feat(notification): 비회원 알림함과 current owner API 추가
+feat(notification): <summary in the selected language>
 
-- 회원 알림 조회/구독을 current owner API로 추가
-- NotificationClient 등록 및 push endpoint client 연결
-- guest_notifications 기반 비회원 조회/구독/읽음 처리 추가
-- NotificationClient 동시 등록 upsert 처리
-- 알림 query/realtime/repository 테스트 보강
-- 알림 저장과 채널 발송 책임 분리 원칙 문서화
+- <concrete change in the selected language>
+- <another concrete change in the selected language>
 ```
 
 Do not add explanation before or after the block unless the user asks for alternatives, asks for reasoning, or the scope is ambiguous enough to require a brief note.
@@ -30,10 +37,10 @@ Do not add explanation before or after the block unless the user asks for altern
 
 Use the user's explicit scope when present:
 
-- "이 파일", "이 모듈", "notification 쪽", "docs만", "테스트만"
-- "staged", "스테이징된 것", "커밋할 것"
-- "main 대비", "origin/main 기준", "HEAD~3..HEAD"
-- a named commit, branch, directory, file path, PR/MR, issue, ticket, or feature
+- a file, directory, module, feature, docs-only slice, or test-only slice
+- staged changes, unstaged changes, or other work intended for a commit
+- a named commit, branch, range, PR/MR, issue, or ticket
+- comparisons such as `origin/main...HEAD` or `HEAD~3..HEAD`
 
 If no explicit scope is present:
 
@@ -60,7 +67,7 @@ Do not stage, commit, reset, clean, push, or modify files as part of this skill 
 
 Use:
 
-`type(scope): Korean summary`
+`type(scope): summary in the selected language`
 
 Common types:
 
@@ -72,21 +79,22 @@ Common types:
 - `build`: build, dependency, toolchain, deployment packaging
 - `chore`: maintenance that does not fit the above
 
-Choose the most specific honest type. Keep the scope short and domain-based, such as `notification`, `carefacility`, `hospital`, `dashboard`, `auth`, `search`, `build`, `docs`, or `test`.
+Choose the most specific honest type. Keep the type in lowercase English. Keep the scope short and domain-based, using English or an established project identifier such as `notification`, `carefacility`, `hospital`, `dashboard`, `auth`, `search`, `build`, `docs`, or `test`.
 
-Keep the Korean summary short and review-friendly. Prefer endings like `추가`, `수정`, `정리`, `개선`, `보강`, `분리`, `연동`, `마이그레이션`.
+Write the summary in the selected language. Keep it short, idiomatic, and review-friendly rather than translating a fixed phrase mechanically.
 
 ## Body Rules
 
 - Use only `- ` bullet lines.
 - Use 4 to 8 bullets by default.
 - Each bullet should describe one concrete change.
+- Write body prose in the selected language.
 - Preserve important domain terms, entity names, API names, file names, or table names from the work.
 - Mention tests only when they are present in the user input, conversation, or inspected diff.
 - Do not invent tests, verification, APIs, files, tables, or behavior.
-- Avoid vague bullets like `기능 개선`, `코드 정리`, or `테스트 추가` without specifics.
+- Avoid vague bullets equivalent to `feature improvements`, `code cleanup`, or `add tests` without specifics.
 - Avoid marketing language.
-- Avoid English-only bullets unless the domain term is already English.
+- Do not switch to English-only prose unless English is the selected language. Technical identifiers may remain in their original language.
 
 ## Split Commit Heuristic
 
@@ -106,6 +114,8 @@ Before answering, verify:
 
 - The output is copy-paste-ready.
 - There is exactly one subject line unless the user asked for alternatives.
+- The subject summary and body use the selected language consistently.
+- The Conventional Commit type and scope remain English or stable domain identifiers.
 - The body bullets match the selected scope.
 - No unsupported claim was added.
 - Sensitive file contents were not exposed.
