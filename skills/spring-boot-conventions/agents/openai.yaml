@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Boot Conventions"
+  short_description: "Java/Spring Boot architecture, GraphQL, style, and tests"
+  default_prompt: "Use $spring-boot-conventions to implement, test, or review this Java/Spring Boot change with predictable structure, reusable domain-centered GraphQL types, and readable code, following the project's local instructions."

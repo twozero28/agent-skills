@@ -8,6 +8,7 @@
 | --- | --- |
 | [`review-code-maintainability`](./skills/review-code-maintainability/README.md) | 코드 구조와 가독성, 책임 분리, 변경 비용을 중심으로 리뷰합니다. |
 | [`commit-message-from-work`](./skills/commit-message-from-work/README.md) | 현재 작업을 사용자 언어의 Conventional Commit 메시지로 정리합니다. |
+| [`spring-boot-conventions`](./skills/spring-boot-conventions/README.md) | Java/Spring Boot의 아키텍처, GraphQL/JPA, 트랜잭션, 코드 스타일과 테스트 규칙을 제공합니다. |
 
 ## 설치
 
@@ -26,9 +27,15 @@ agent-skills/
     │   ├── SKILL.md
     │   └── agents/
     │       └── openai.yaml
-    └── review-code-maintainability/
+    ├── review-code-maintainability/
+    │   ├── README.md
+    │   ├── SKILL.md
+    │   └── agents/
+    │       └── openai.yaml
+    └── spring-boot-conventions/
         ├── README.md
         ├── SKILL.md
-        └── agents/
-            └── openai.yaml
+        ├── agents/
+        │   └── openai.yaml
+        └── references/
 ```
