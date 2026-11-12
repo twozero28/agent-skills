@@ -62,7 +62,7 @@ The table is not a scaffolding checklist. Do not add empty roles or overload an 
 
 ## Implement within the agreed scope
 
-Define meaningful call contracts, connect Service data preparation/domain behavior/persistence, and keep a composite workflow understandable from its UseCase. Use QueryService for read results. Follow project TDD; this document's section order does not require writing tests after implementation.
+Define meaningful call contracts, connect Service data preparation/domain behavior/persistence, and keep a composite workflow understandable from its UseCase. Use QueryService for read results. Follow the project's TDD and implementation sequence.
 
 Keep DTOs near their owner, omit copying stages, and prevent provider/ORM/SQL mechanics from leaking into business contracts. Preserve established serialization, errors, authorization, and module boundaries. Use [Package structure](package-structure.md) when placement changes.
 
@@ -115,7 +115,7 @@ Verification: commands actually run and their outcomes
 Limits: skipped/unexecuted checks and remaining risks
 ```
 
-Explain any new package, interface, special transaction, or boundary exception. Do not repeat an entire document or codebase when the user can inspect the actual diff. Use the user's language; English skill instructions do not require English conversation.
+Explain any new package, interface, special transaction, or boundary exception. Do not repeat an entire document or codebase when the user can inspect the actual diff. Use the user's language.
 
 ## Decisions left to the project
 

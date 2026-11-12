@@ -279,7 +279,7 @@ Let the IDE/formatter sort within groups. Existing formatter rules, including st
 
 ## Comments
 
-Explain non-obvious reasons, constraints, or business background rather than restating code. Preserve the project's language convention; absent a different rule, the inherited default is concise Korean comments. English comments in this document demonstrate structure, not a language migration.
+Explain non-obvious reasons, constraints, or business background rather than restating code. Follow the project's language convention; otherwise use concise Korean comments.
 
 Use brief stage comments when genuinely helpful, not universal “validate/process/return” templates or CRUD region markers. Add Javadoc for public contracts or surprising behavior where needed, not boilerplate getter documentation.
 

@@ -76,7 +76,7 @@ Verify calls when calls themselves are the contract. Do not substitute invocatio
 
 Default to production-package mirroring under `src/test/java` with `*Test.java`. Follow an established `*IT` pattern or source-set discovery rule when present; renaming must not remove tests from execution.
 
-For JUnit Jupiter, add a behavior-describing `@DisplayName` to each test method, not only the class. Preserve project language policy; absent a different rule, the inherited default is concise Korean. The English example below illustrates layout only. Do not migrate another test engine to enforce this annotation.
+For JUnit Jupiter, add a behavior-describing `@DisplayName` to each test method, not only the class. Follow the project's language policy; otherwise use concise Korean display names. Do not migrate another test engine to enforce this annotation.
 
 ```java
 @Test
