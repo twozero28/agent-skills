@@ -1,4 +1,4 @@
-# Sources and Scope
+# Technical References
 
 ## Contents
 
@@ -10,13 +10,12 @@
 - [Testing](#testing)
 - [Configuration and Liquibase](#configuration-and-liquibase)
 - [Agent Skill format and tool integration](#agent-skill-format-and-tool-integration)
-- [Validation scope](#validation-scope)
 
 ## Conventions versus framework behavior
 
 Feature/package structure, UseCase/Service boundaries, DTO suffixes/reuse, Java/SQL layout, configuration namespaces, migration-file immutability, and test/fixture conventions are **design choices for this skill**. They are not mandatory Spring/GraphQL rules or the only valid industry approach.
 
-The official sources below support technical behavior and further verification. Versionless and `current` pages can change; consult documentation matching the project's installed versions. A documentation link is not an instruction to upgrade or add a dependency. This list is not a claim that every external page was freshly checked during the English rewrite.
+The official sources below support technical behavior and further verification. Versionless and `current` pages can change; consult documentation matching the project's installed versions. A documentation link is not an instruction to upgrade or add a dependency.
 
 ## Persistence and concurrency
 
@@ -45,7 +44,7 @@ Draft/Patch ownership and reuse are input-contract choices. Their names do not p
 | [Java DataLoader](https://github.com/graphql-java/java-dataloader) | Batch APIs, key/result mapping, cache behavior, and loader lifecycle |
 | [Hibernate: LazyInitializationException](https://docs.jboss.org/hibernate/orm/current/javadocs/org/hibernate/LazyInitializationException.html) | Uninitialized state accessed without an appropriate open session |
 
-The preference for entity-centered reusable SDL types is the modeling choice agreed for this skill. It neither requires one-to-one DB exposure nor forbids projections, DTOs, different exposure contracts, client operation types, or ID-based field resolvers. Actual API/runtime compatibility must be checked against the project.
+Reuse business-entity SDL types without requiring one-to-one DB exposure. Projections, DTOs, different exposure contracts, client operation types, and ID-based field resolvers remain valid where appropriate. Check API/runtime compatibility against the project.
 
 ## Spring transactions
 
@@ -81,7 +80,7 @@ Outbox, retries, and compensation depend on business reliability requirements. T
 | [Spring Security: MockMvc setup](https://docs.spring.io/spring-security/reference/servlet/test/mockmvc/setup.html) | Including the actual security filter chain in web tests |
 | [JUnit User Guide](https://docs.junit.org/current/user-guide/) | Display names, test declarations, and parameterized-test facilities |
 
-Test filenames, display-name adoption/language, mock boundaries, fixture ownership, and production API protection are skill conventions. Dedicated project annotations, enabled infrastructure, and fixture tools remain project decisions. User-supplied project policies are design inputs, not public documentation links.
+Test filenames, display-name adoption/language, mock boundaries, fixture ownership, and production API protection are skill conventions. Dedicated project annotations, enabled infrastructure, and fixture tools remain project decisions.
 
 ## Configuration and Liquibase
 
@@ -101,11 +100,3 @@ Service-name namespaces, aligned SQL columns, object prefixes, file-number forma
 | [OpenAI: Build skills](https://learn.chatgpt.com/docs/build-skills) | Skill layout, discovery, and optional agent metadata |
 | [OpenAI: Customization](https://learn.chatgpt.com/docs/customization/overview) | Persistent project instructions versus task-specific skills |
 | [Claude Code: Skills](https://code.claude.com/docs/en/skills) | Local/project installation and invocation |
-
-This documentation-only bundle needs no executable scripts or external integration. Tool-specific local paths do not imply access from hosted/web sessions. Check current official tool documentation before installing or changing integration metadata.
-
-## Validation scope
-
-For a release, validate YAML/frontmatter, internal file/section targets, Markdown fences, the single skill root in the ZIP, and semantic consistency. Confirm the intended language throughout documents, examples, and metadata.
-
-These checks do not substitute for compilation, application integration tests, live-provider checks, or agent evaluations. [Decision scenarios](review-checklist.md#decision-scenarios) are criteria for evaluating future changes, not a claim that those scenarios were executed. Report only checks actually performed.

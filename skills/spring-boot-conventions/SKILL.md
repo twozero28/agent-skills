@@ -19,7 +19,7 @@ Make code location, responsibility, and execution flow predictable. Organize by 
 - Reuse maintained project patterns, not their defects. Explain material conflicts or necessary exceptions briefly.
 - **Required** means a boundary within this convention's scope. **Default** applies without a project-specific rule. **Optional** requires a real need.
 - Test-support rules apply to test sources and declared test source sets. Do not reproduce production layers in fixtures or seeders.
-- This skill's language does not change the user's response language or the repository's language policy for comments, test names, and business text.
+- Respond in the user's language. Follow the repository's language policy for comments, test names, and business text.
 
 ## Load only relevant references
 
@@ -83,4 +83,4 @@ Technical entry point: Scheduler / Consumer -> UseCase or Service
 - Select tests by the contract and real execution path they must prove. Do not mock away that path or change production constructors, setters, visibility, or invariants solely for test convenience.
 - Reuse project test infrastructure and execution rules. Control important data and time; isolate resources. Distinguish GraphQL execution, MockMvc/security, and real-server coverage; flush is not commit.
 - Group custom properties by service and feature; preserve framework keys and deployment contracts. Follow existing migration conventions. Do not edit or append changesets to already-applied files; add subsequent changes in new files.
-- Before delivery, review the diff and run relevant project checks. Report passed, failed, skipped, and unexecuted checks separately. Never claim compilation, integration coverage, or agent evaluation that did not run.
+- Before delivery, review the diff and run relevant project checks. Report passed, failed, skipped, and unexecuted checks separately.

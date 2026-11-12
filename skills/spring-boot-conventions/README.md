@@ -1,6 +1,6 @@
 # Spring Boot Conventions
 
-An English, documentation-only Agent Skill for predictable Java/Spring Boot implementation, testing, and review.
+An Agent Skill for predictable Java/Spring Boot implementation, testing, and review.
 
 The design combines feature-first organization, domain-owned business rules, code-level CQRS, and meaningful UseCase orchestration. It does not mandate JPA, jOOQ, MyBatis, a particular Java/Spring version, or a new testing framework.
 
@@ -26,7 +26,7 @@ spring-boot-conventions/
     └── source-notes.md
 ```
 
-[SKILL.md](SKILL.md) is the entry point and reference router. Load detailed documents only when the task needs them. `agents/openai.yaml` contains optional Codex display metadata, not a second rule set. This README is installation and maintenance guidance, not required reading for every implementation task.
+[SKILL.md](SKILL.md) is the entry point and reference router. Load detailed documents only when the task needs them. `agents/openai.yaml` contains optional Codex display metadata, not a second rule set. Use this README for installation and usage.
 
 ## Main decisions
 
@@ -86,20 +86,8 @@ Merge a short reference into the applicable `AGENTS.md` or `CLAUDE.md`; do not r
 
 Keep project-specific decisions here, not copies of the skill's detailed rules. For example, preserve a project's test annotation names, supported infrastructure, fixture tools, TDD process, build commands, and completion requirements. Do not erase a project's test instructions to replace them with generic guidance.
 
-## Language and examples
+## Usage notes
 
-All package documents, metadata, and examples are written in English. This is a documentation-language change, not a request to rename business concepts or rewrite repository text. Respond in the user's language and preserve project conventions for comments and test names. The inherited Korean defaults for comments and JUnit display names are expressed in English in the relevant references; English examples illustrate structure only.
+Respond in the user's language. Follow project conventions for comments, test names, and business text.
 
-Java, GraphQL, YAML, and SQL snippets explain contracts or layout. They are not a standalone application and must be adapted to actual project types and versions. Do not add dependencies or production APIs merely to copy an example.
-
-## Maintenance
-
-Change the reference that owns a rule, then add a concise regression scenario to the [review checklist](references/review-checklist.md). Avoid repeating the same explanation throughout the bundle. Prefer proven project examples over expanding this skill into a framework or tutorial.
-
-Keep application-specific exception models, API response formats, database choices, coverage targets, version upgrades, brokers, and delivery policies in project instructions.
-
-## Provenance and validation scope
-
-This edition rewrites the supplied ZIP in English and incorporates the clarifications agreed in the accompanying review: entity-centered GraphQL reuse, explicit loading and batching boundaries, synchronous post-commit writes, test-path selection, invalid raw requests, framework naming exceptions, and reduced rule duplication.
-
-Validate metadata, internal file/section links, code fences, and packaging before distribution. Review semantic consistency separately. These checks do not demonstrate application compilation, integration-test success, or measured agent reliability. The [scenario table](references/review-checklist.md#decision-scenarios) contains evaluation criteria, not completed test results. External references are supporting documentation, not a claim that every linked page was revalidated for this translation.
+Adapt code examples to actual project types and versions. Do not add dependencies or production APIs merely to copy an example.

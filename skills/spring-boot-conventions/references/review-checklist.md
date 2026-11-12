@@ -84,8 +84,6 @@ See [Testing](testing.md).
 
 ## Decision scenarios
 
-These are regression/evaluation criteria, **not executed test results**.
-
 | Request or situation | Expected decision | Avoid |
 |---|---|---|
 | Add facility-name editing | Reuse/extend the owning Service and Repo | Pass-through UseCase or domain copy |
