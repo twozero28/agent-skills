@@ -24,7 +24,8 @@ See [Nest resolvers](https://docs.nestjs.com/graphql/resolvers), [CLI plugin](ht
 
 ## Resolver and authorization boundaries
 
-- Keep root and field resolvers as API adapters. Delegate reads to published QueryService contracts and changes to Services or UseCases; do not inject repositories into resolvers or custom API DataLoaders.
+- Keep root and field resolvers as API adapters. Delegate business operations to Service methods, a QueryService when reads warrant separation, or a UseCase for a distinct workflow. Keep authorization-aware database queries behind those application methods.
+- Have custom API DataLoaders call the owning feature's bulk read methods; do not require a separate QueryService or QueryRepository when the existing Service already provides the contract.
 - Load another feature's relationship through its published query contract rather than importing internal repositories or adding persistence associations for convenience.
 - Use `GqlExecutionContext` when a transport adapter needs GraphQL arguments or context. Do not assume an HTTP request/response shape in a shared guard or filter.
 - Retain actor, tenant, and exposure checks in application query contracts. Parent visibility does not authorize every child relationship or sensitive field.

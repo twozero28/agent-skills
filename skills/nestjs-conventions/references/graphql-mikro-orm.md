@@ -20,7 +20,8 @@ See [Nest resolvers](https://docs.nestjs.com/graphql/resolvers) and [ORM seriali
 - Treat GraphQL traversal as a read relationship, not an aggregate, write-permission, or transaction boundary.
 - Expose business relationships without automatically exposing technical join entities. Use a relationship object when its own attributes have business meaning.
 - Keep cross-feature relationships behind the owning feature's published application query contracts. An ID plus a field resolver can express a relationship without a cross-feature ORM association.
-- Preserve `Resolver/DataLoader -> QueryService -> QueryRepo`. Loading through `Reference.load()` or `Collection.load()` still performs persistence work; place it behind the query contract.
+- Delegate relationship reads to the owning Service or QueryService. Those methods may use ORM loading directly or a Repository when the query merits extraction; do not generate a fixed chain of forwarding layers.
+- Treat `Reference.load()` and `Collection.load()` as database work. Keep authorization-aware relationship loading in the owning application read method, including when ORM batching supplies the implementation.
 - Keep API code from accessing another feature's EntityManager, repositories, or managed internals to avoid a mapping step.
 
 ## Runtime loading and wrappers
@@ -39,7 +40,7 @@ See [Nest resolvers](https://docs.nestjs.com/graphql/resolvers) and [ORM seriali
 |---|---|
 | Same-feature, frequently required to-one | An explicit `populate`/fetch plan |
 | Optional or expensive same-feature relation | Query contract using supported ORM batching or a bulk query |
-| Cross-feature relationship | Published bulk QueryService with a request-local DataLoader |
+| Cross-feature relationship | Published bulk read method with a request-local DataLoader |
 | To-many relationship affecting parent pagination | Page parents correctly, then load requested children |
 | Field arguments define a per-parent page | An argument-aware query and cache strategy |
 
@@ -53,7 +54,7 @@ See [Nest resolvers](https://docs.nestjs.com/graphql/resolvers) and [ORM seriali
 - MikroORM supports batching through `Reference.load()` and `Collection.load()` in supported versions. Enable it explicitly through configuration or load options; do not assume it is on by default.
 - Check the installed dependency requirements; MikroORM v7 requires the `dataloader` package when using this facility.
 - Schedule compatible loads so they can be batched. Avoid sequential per-key awaits that recreate one-query-per-parent behavior.
-- Keep ORM batching behind application query contracts. It does not justify moving persistence operations into resolvers.
+- Keep ORM batching behind the owning application read method. Preserve the same access checks for batched, preloaded, and individually requested values.
 - Use a separate DataLoader when ownership, data source, authorization, or field-argument semantics require a different bulk contract.
 - Ensure custom loaders perform real bulk work, preserve key/result correspondence, handle missing values, and bound request sizes.
 

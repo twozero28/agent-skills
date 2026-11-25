@@ -2,9 +2,10 @@
 
 ## Transport boundary
 
-- Keep controllers, resolvers, transport DTOs, and response mapping in the owning feature's `api` directory.
+- Keep controllers, resolvers, transport DTOs, and response mapping in the owning feature. Use its `api` directory when the feature adopts that layout.
 - Let an endpoint call the application Service, QueryService, or UseCase that owns its operation. Do not access repositories or coordinate independent business services in the endpoint.
-- Convert transport input into an application command/query or a matching domain-owned `Draft/Patch`. Service and UseCase signatures must not import API `Request/Input` classes.
+- Reuse a feature's `CreateAccountDto`, `UpdateAccountDto`, or GraphQL input in its Service when fields, meaning, and validation fit. Introduce a separate application input when transport-specific data, multiple entry points, access context, or an independent contract requires it; avoid state-identical conversion chains.
+- Keep domain models and policies independent of transport DTOs. Pass validated business values to them. Jobs and consumers must establish their own input validation; calling a Service does not execute HTTP pipes or GraphQL validation.
 - Pass the trusted actor and tenant context separately from caller-controlled payloads. Reject or ignore attempted ownership changes according to the API contract.
 - Validate transport shape at entry; enforce business invariants in the domain and application authorization at the operation boundary, including calls from jobs and consumers.
 - Preserve the installed HTTP adapter, validation library, API response format, and error conventions. Do not introduce a replacement stack for a small change.
@@ -12,12 +13,14 @@
 ## Runtime validation
 
 - Use the project's established runtime validator; TypeScript annotations and assertions do not validate external input.
+- With a schema-based validator, use the project's supported validation pipe and infer static types from the runtime schema where practical. Do not introduce a parallel class-based validation model solely to match an example.
 - With `ValidationPipe` and class-validator, use concrete DTO classes with validation metadata. Import these classes as runtime values; `import type`, interfaces, and generic types cannot supply that metadata.
 - Choose `transform`, unknown-property handling, and error formatting deliberately. `whitelist` strips properties without validation metadata; `forbidNonWhitelisted` rejects them. Neither option authorizes otherwise valid fields.
 - Validate route and query parameters explicitly. Bound page sizes and bulk input sizes; parse booleans and numbers according to the transport contract instead of relying on truthiness or broad coercion.
-- Validate nested objects and array elements using the adopted schema or explicit class-validator/class-transformer metadata. A `CreateItemRequest[]` parameter alone does not describe its element validator.
+- Validate nested objects and array elements using the adopted schema or explicit class-validator/class-transformer metadata. A `CreateItemDto[]` parameter alone does not describe its element validator.
 - Use the appropriate mapped-type helpers: `@nestjs/graphql` for GraphQL inputs, `@nestjs/swagger` for Swagger DTOs, or `@nestjs/mapped-types` when neither integration applies.
 - Keep validation and transformation configuration shared between production bootstrap and tests that claim to verify it.
+- When relying on a Swagger or GraphQL CLI plugin, verify its configured filename suffixes and build integration. Preserve explicit metadata or supported filenames; a type rename alone does not establish schema discovery.
 
 See [Nest validation](https://docs.nestjs.com/techniques/validation) and [GraphQL mapped types](https://docs.nestjs.com/graphql/mapped-types).
 

@@ -6,14 +6,14 @@ Preserve an established project layout and naming convention. Otherwise use the 
 
 | Kind | Default location and filename | Example |
 |---|---|---|
-| Unit test | Beside the target source file, `*.spec.ts` | `src/account/application/account.service.spec.ts` |
-| Integration test | `test/integration/<feature>/**/*.integration-spec.ts` | `test/integration/account/account.repo.integration-spec.ts` |
+| Unit test | Beside the target source file, `*.spec.ts` | `src/account/account.service.spec.ts` |
+| Integration test | `test/integration/<feature>/**/*.integration-spec.ts` | `test/integration/account/account.repository.integration-spec.ts` |
 | E2E test | `test/e2e/<feature>/**/*.e2e-spec.ts` | `test/e2e/account/account.e2e-spec.ts` |
 | Shared fixture | `test/fixtures/**/*.fixture.ts` | `test/fixtures/account.fixture.ts` |
 | Shared seeder | `test/seeders/**/*.seeder.ts` | `test/seeders/account.seeder.ts` |
 | Test infrastructure and lifecycle support | `test/support/` | `test/support/test-app.ts`, `test/support/test-database.ts` |
 
-- Place a domain unit test beside its model, such as `src/account/domain/account.entity.spec.ts`. Keep the source basename and replace `.ts` with `.spec.ts`.
+- Place a domain unit test beside its model, such as `src/account/entities/account.entity.spec.ts`, or under `domain/` when that layout is adopted. Keep the source basename and replace `.ts` with `.spec.ts`.
 - Group integration and E2E tests by the owning feature or workflow. Add deeper directories only when navigation benefits; do not reproduce every production layer in test support.
 - Classify tests by the boundary they execute. A Service test using real persistence is an integration test; an E2E test exercises the intended public API/application path.
 - Keep single-test helpers local. Share fixtures for constructing values, seeders for installing DB test data, and support for application setup, containers, and cleanup only when reuse is useful.
@@ -38,12 +38,12 @@ Select the contract, the execution path that must remain real, and the smallest 
 | Service or UseCase decisions | Actual target logic; collaborators may be substituted |
 | Dependency injection and module visibility | Real module registration and token resolution |
 | SQL, constraints, mapping, locking | Actual persistence implementation and relevant database behavior |
-| Workflow atomicity | Real participating Services, repositories, and transaction integration |
+| Workflow atomicity | Real owning application provider, participating persistence paths, and transaction integration |
 | GraphQL contract and field loading | Executed schema and intended resolver/application path |
 | HTTP validation, authentication, serialization | Configured application request pipeline |
 | External adapter protocol | Real adapter against a controlled protocol endpoint or approved provider environment |
 
-A direct method call does not establish guard, pipe, interceptor, filter, or schema behavior. A UseCase test with mocked Services establishes coordination, not database atomicity. Keep the target and the claimed integration path real.
+A direct method call does not establish guard, pipe, interceptor, filter, or schema behavior. A workflow test with mocked persistence establishes decisions and coordination, not database atomicity. Keep the target and the claimed integration path real.
 
 ## Application setup
 
@@ -78,7 +78,7 @@ See [Nest testing](https://docs.nestjs.com/fundamentals/testing) for application
 Choose only checks relevant to the change:
 
 - Observe commit/rollback results through a fresh context or connection when persistence durability is the claim. An in-memory entity or completed flush is insufficient.
-- Call a DB-changing Service independently, then in a composed workflow. Force a later step to fail and verify that all participating writes roll back.
+- When a changed operation supports both standalone and composed execution, test both. Force a later step to fail and verify that all writes in the required atomic unit roll back.
 - For ORM plus SQL-builder operations, prove shared transaction participation and read-after-write behavior with real queries.
 - Exercise the actual database engine for engine-specific SQL, uniqueness, locks, isolation, and migrations.
 - Inspect generated GraphQL schema and execute the selected relationship fields. Include missing/forbidden objects and tenant separation when relevant.

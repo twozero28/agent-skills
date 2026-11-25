@@ -1,72 +1,84 @@
 # Module Structure and Dependency Injection
 
-## File ownership
+## Feature layout
 
-Organize by feature first. Place the feature's `*.module.ts` at its root and add only the classifications that contain real code.
+Organize by feature first and keep a small feature shallow. Preserve an established project layout; otherwise start with the following files and add only those needed.
 
 | Location within a feature | Content |
 |---|---|
-| `api/` | Controllers, resolvers, transport DTOs, API-specific guards/pipes/filters |
-| `application/` | Services, QueryServices, UseCases, commands, read contracts, application events |
-| `domain/` | Entities, value objects, policies, Draft/Patch inputs, domain facts |
-| `persistence/` | Repos, QueryRepos, queries, persistence mapping, DB-specific configuration |
-| `infrastructure/` | External clients, provider DTOs, message adapters, schedulers, technical configuration |
+| `account.module.ts` | Feature registration and public provider exports |
+| `account.controller.ts` or `account.resolver.ts` | Transport entry points |
+| `account.service.ts` | Cohesive feature operations |
+| `dto/create-account.dto.ts` | A REST input DTO; use `*.input.ts` for GraphQL inputs |
+| `account.entity.ts` or `entities/` | Entities when used; group several related entities only when useful |
+| `account.repository.ts`, when needed | Meaningful custom persistence behavior |
+| `account-query.service.ts`, when needed | Distinct read contracts |
+| `register-account.use-case.ts`, when needed | A substantial named workflow |
 
-Keep DTOs near their owning layer, normally in separate files. Add local `dto`, `query`, or `use-case` directories only when navigation benefits. Keep a simple internal-only type in its consuming file when it has no independent contract.
+- Keep each class near the feature that owns it. Do not create a folder or a provider merely to complete the table.
+- Keep public DTOs in their owning feature's `dto/` or adopted schema location. Keep a small internal-only type beside its consumer when it has no independent contract.
+- Use `Repository`, `Dto`, `Input`, and other role suffixes consistently with [Code style](code-style.md). Preserve existing names during unrelated changes.
+- Add `queries/`, `use-cases/`, `policies/`, or adapter directories when the amount of related code makes navigation clearer.
+- For a feature with substantial responsibilities, separate `api/`, `application/`, `domain/`, `persistence/`, and `infrastructure/` as needed. Keep existing layered features consistent; do not create empty layers or flatten them incidentally.
+- In a layered feature, place controllers/resolvers in `api`, operations in `application`, business rules in `domain`, database implementation in `persistence`, and external integrations in `infrastructure`.
+- Keep genuinely shared technical capabilities in the project's shared location. A business feature does not become shared infrastructure because several features call it.
+- Keep generated files, migrations, and schema resources in their configured tool locations.
 
-Keep DB access in `persistence` and other integrations in `infrastructure`. Preserve an established alternative during a small change; do not mix equivalent layouts in newly added code. Classify caches by responsibility rather than product name.
-
-Keep shared capabilities in an existing shared location only when their contract is actually shared. A business feature does not become shared infrastructure because several other features call it. Keep generated files, migrations, and schema resources in their configured tool locations.
-
-Use colocated unit tests and feature-grouped integration/E2E tests under `test/` by default. Follow [Test locations and filenames](testing.md#test-locations-and-filenames) for exact paths, suffixes, shared support, and discovery rules; keep these files outside production runtime imports and build output.
+Colocate unit tests with their subjects and group integration/E2E tests under `test/`. Follow [Test locations and filenames](testing.md#test-locations-and-filenames) for paths, suffixes, shared support, and discovery; keep test code out of production imports and build output.
 
 ## Nest registration
 
-- Register HTTP controllers in `controllers`. Register application providers, resolvers, and adapters in `providers` as needed.
+- Register HTTP controllers in `controllers`. Register Services, resolvers, and adapters in `providers` as needed.
+- Prefer ordinary constructor injection of concrete providers. Use TypeScript parameter properties such as `constructor(private readonly accountsService: AccountsService) {}` when appropriate.
 - Import the module that exports a required provider. Importing its TypeScript class alone does not make it injectable in the consuming module.
-- Export only intended application contracts or technical capabilities. Do not export every Repo to make injection errors disappear.
-- Reuse an imported provider rather than declaring its class again in each consuming module; repeated registration can create separate instances.
-- Keep entities and value objects as ordinary objects unless they genuinely need a provider lifecycle. Do not register a class merely because it lives in `domain`.
-- Keep provider factories and dependency selection in the composition layer. Do not use `ModuleRef.get()` or a general service locator to hide ordinary application dependencies.
+- Export deliberate application contracts and shared technical capabilities. Do not export all repositories to make injection errors disappear.
+- Reuse imported providers instead of declaring their classes again in each consuming module; repeated registration can create separate instances.
+- Keep entities, value objects, and pure functions outside the provider container unless they require its lifecycle or dependencies.
+- Keep dependency selection and factories in module configuration. Do not use `ModuleRef.get()` or a general service locator to hide ordinary dependencies.
 
-A module's `exports` controls Nest injection, not arbitrary TypeScript imports. Honor the project's static import boundaries and architecture checks as well as runtime registration.
+A module's `exports` controls Nest injection, not arbitrary TypeScript imports. Honor static import boundaries and architecture checks as well as runtime registration.
 
 ## Runtime tokens
 
-TypeScript interfaces and type aliases cannot be DI tokens. Use an actual class, an abstract class imported as a runtime value, or an explicitly exported string/symbol token. Inject an interface with `@Inject(TOKEN)` and register that same token.
+Use class tokens for ordinary provider injection. Introduce an interface and a custom token for an actual contract or implementation choice. TypeScript interfaces and type aliases are erased and cannot serve as runtime DI tokens.
 
-Keep tokens in their owning contract or a small token file, not in a module file that imports their consumers. Reuse the same symbol value; `Symbol('FILE_STORAGE')` created twice produces different tokens.
-
-Use `useExisting` when another token must refer to an already registered provider. Use `useClass` when the token should construct that implementation. Do not accidentally register both and assume they identify the same singleton.
+- Use a class, an abstract class imported as a runtime value, or an exported string/symbol token. Inject a compile-time contract with `@Inject(TOKEN)` and register the same token.
+- Keep tokens near their contract or in a small token file, not in a module file that imports their consumers.
+- Reuse the same symbol value; two calls to `Symbol('FILE_STORAGE')` produce different tokens.
+- Use `useExisting` to alias an already registered provider. Use `useClass` when the token should construct its implementation; do not register both and assume they identify the same singleton.
 
 ```typescript
-export const FILE_STORAGE = Symbol('FILE_STORAGE');
+import { Module } from '@nestjs/common';
+import { FILE_STORAGE } from './file-storage';
+import { S3FileStorage } from './s3-file-storage';
 
-// In the owning module's metadata:
-providers: [
-  S3FileStorage,
-  { provide: FILE_STORAGE, useExisting: S3FileStorage },
-],
-exports: [FILE_STORAGE],
+@Module({
+  providers: [
+    S3FileStorage,
+    { provide: FILE_STORAGE, useExisting: S3FileStorage },
+  ],
+  exports: [FILE_STORAGE],
+})
+export class StorageModule {}
 ```
 
-Import runtime DI tokens and classes as values. Reserve `import type` for compile-time-only contracts. Verify emitted metadata and the existing decorator/transpiler setup before changing imports or build options.
+Import runtime tokens and metadata-bearing classes as values. Reserve `import type` for compile-time-only contracts. Check the installed decorator, compiler, and transpiler setup before changing imports or build options.
 
 ## Scope and lifecycle
 
-- Default stateless application Services to the normal singleton scope. Store actor, tenant, request, or transaction state in explicit inputs or the project's isolated context, never in mutable singleton fields.
-- Introduce request scope for an actual lifetime requirement. It propagates through dependent providers and can expand the per-request object graph.
-- Keep request-scoped loaders separate from reusable stateless query capabilities. An ORM RequestContext is not a reason to mark every Nest provider request-scoped.
-- Use `@Global()` only for deliberately global infrastructure. Keep feature dependencies visible through module imports.
-- Investigate provider and import cycles by revisiting ownership and extracting the appropriate contract. Use `forwardRef()` only for a justified remaining cycle, with its runtime behavior verified.
-- Prefer direct imports for modules and providers. Do not import a feature's own barrel from inside that feature and create a hidden circular import.
-- Keep constructor work to dependency assignment. Use the established lifecycle hooks for resources, and close pools, consumers, and other handles during shutdown.
+- Default stateless Services to singleton scope. Keep actor, tenant, request, and transaction state in explicit inputs or the project's isolated context, never in mutable singleton fields.
+- Introduce request scope for an actual lifetime requirement. It propagates to dependent providers and can expand the per-request object graph.
+- Keep request-scoped loaders separate from reusable stateless query capabilities. An ORM RequestContext does not require every Nest provider to be request-scoped.
+- Use `@Global()` only for deliberately global infrastructure. Make feature dependencies visible through module imports.
+- Investigate provider and import cycles through ownership and dependency direction. Use `forwardRef()` only for a justified remaining cycle and verify its behavior.
+- Prefer direct imports for modules and providers. Avoid importing a feature's own barrel from inside that feature and creating hidden cycles.
+- Keep constructors limited to dependency assignment. Use supported lifecycle hooks for resources and close pools, consumers, and other handles during shutdown.
 
 ## Configuration and entry points
 
-Group custom configuration by application/service and feature using the project's adopted configuration provider. Validate required values at startup. Preserve deployed environment-variable names and library-owned keys; configuration nesting is not permission to rename an operational contract.
+Group configuration through the project's adopted configuration provider and validate required values at startup. Preserve deployed environment-variable names and library-owned keys.
 
-Keep provider credentials and wire formats inside infrastructure adapters. Put message decoding, acknowledgement, retries, and scheduling at technical entry points; delegate business execution to a UseCase or Service. Give each independent job the execution context required by its persistence and authorization contracts.
+Keep provider credentials and wire formats inside adapters. Put message decoding, acknowledgement, retries, and scheduling at technical entry points; delegate business execution to the owning Service or UseCase. Give each independent job the ORM and authorization context its operation requires.
 
 ## Framework references
 

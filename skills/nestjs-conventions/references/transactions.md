@@ -4,38 +4,33 @@ Use the project's database and transaction mechanisms. Nest dependency injection
 
 ## Ownership
 
-- A standalone DB-changing Service owns the transaction required by its business operation.
-- A UseCase owns a wider transaction when composed Service changes must succeed or fail together.
-- Keep the UseCase dependent on business services and, when needed, a narrow transaction runner. Do not inject repositories, EntityManager, SQL clients, or ORM sessions into it.
+- Let the Service or UseCase that owns a business operation define its required transaction boundary.
+- Put a wider transaction around composed changes when they must succeed or fail together. The workflow may live in a Service or a dedicated UseCase; do not add a class solely to host a transaction.
+- Use the project's ORM transaction API directly in the owning application provider unless an adopted module boundary requires an abstraction. Keep ORM handles out of transport DTOs and public business inputs/outputs.
 - Keep repository methods responsible for persistence operations, not independently committing fragments of a larger business workflow.
 - Decide the atomic unit from business consistency, not from controller routes, resolver nesting, or the number of tables touched.
 - Use one local transaction only for operations that actually share its database connection/context. Multiple databases or independently managed clients need a separate consistency design.
 
-## Execution-only transaction contract
+## Transaction API and composition
 
-Use an existing compatible decorator or a narrow execution contract when orchestration needs a transaction:
-
-```typescript
-export abstract class TransactionRunner {
-  abstract run<T>(work: () => Promise<T>): Promise<T>;
-}
-```
-
-- Define whether `run` joins an existing transaction or starts one. Default this convention's ordinary composition to join-or-create behavior when the adapter supports it.
-- Implement the runner in `persistence` or the project's existing database-integration module using the installed transaction API. It may manage transactions and contexts; it must not expose queries, managers, repositories, or entity access to callers.
+- Prefer the existing ORM callback/decorator mechanism. With MikroORM, use `em.transactional()` or the supported `@Transactional()` integration; select propagation deliberately.
+- Introduce an execution-only runner such as `run<T>(work: () => Promise<T>): Promise<T>` only for an actual shared boundary or provider-independent contract. Keep its implementation in the database integration and avoid adding query or entity-access methods to it.
+- Define whether a nested call joins an existing transaction or starts one. Prefer joining for an atomic composed operation when the mechanism supports it; do not rely on unspecified defaults.
 - Ensure every participating Service and repository resolves the same transaction context. Wrapping a callback is insufficient if its collaborators keep using unrelated clients or forks.
-- Keep transactional adapters registered through Nest DI. If using decorators, verify their context lookup and invocation requirements without adding ORM dependencies to the UseCase.
-- Await each participating operation and the runner itself. Do not start unawaited work that outlives the transaction.
-- Keep nested Service boundaries compatible with the outer workflow. Do not silently create independent commits inside an atomic UseCase.
+- Within a transaction callback, use its EntityManager or collaborators verified to resolve the same contextual manager. Keep transaction-bound clients local to that execution.
+- If using decorators, verify the installed import path, async method requirements, and EntityManager/context lookup. If using an adapter, register it through Nest DI.
+- Await each participating operation and the transaction call itself. Do not start unawaited work that outlives the transaction.
+- Keep nested Service boundaries compatible with the outer workflow. Do not silently create independent commits inside an atomic operation.
 
 ## MikroORM propagation and flush
 
 Apply this section only when MikroORM is used.
 
 - Check installed-version APIs and defaults before configuring propagation. In MikroORM v7, `@Transactional()` defaults to `REQUIRED`, while `em.transactional()` defaults to `NESTED`.
+- Use the implicit flush transaction when it covers the entire required unit of queued ORM writes. Use an explicit transaction when read/lock decisions, multiple flushes, or ORM and direct SQL operations must share one boundary; a final flush does not retroactively include earlier reads.
 - Select `REQUIRED` explicitly where supported when operations should join one transaction. A savepoint and an independent transaction have different failure and commit behavior.
 - Reserve nested savepoints and independent transactions for a demonstrated recovery or isolation requirement. Document the resulting business behavior near the implementation.
-- Have the transaction adapter use the current contextual EntityManager. Use repositories that resolve that context; do not assume a plain independent fork joins it.
+- Begin from the current contextual EntityManager. Use the callback's manager or repositories that resolve its transaction context; do not assume a plain independent fork joins it.
 - Distinguish a request context, a Unit of Work, a flush, and a committed transaction. Request isolation does not provide atomicity.
 - Account for the whole managed Unit of Work when choosing flush points. Do not make each repository flush as though it owned the complete business operation.
 - MikroORM transaction callbacks/decorators flush before completion. An inner flush does not mean an enclosing transaction has committed.
@@ -72,8 +67,8 @@ See [MikroORM transactions](https://mikro-orm.io/docs/transactions).
 
 ## Verification
 
-- Prove both independent Service execution and Service composition under one UseCase transaction.
+- Verify each supported standalone operation and, where present, its composition under the owning workflow transaction.
 - Induce a failure after an earlier write and confirm rollback through a separate committed read context.
 - When mixing ORM and a query builder, verify that both writes roll back together; sharing a database URL is insufficient evidence.
 - Verify retry behavior, relevant concurrency conflicts, and external delivery idempotency where changed.
-- Do not mock the transaction runner or repositories in tests that claim to prove database atomicity.
+- Keep the actual transaction integration and participating persistence calls real in tests that claim to prove database atomicity.
