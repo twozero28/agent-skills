@@ -1,5 +1,33 @@
 # Testing
 
+## Test locations and filenames
+
+Preserve an established project layout and naming convention. Otherwise use the following defaults relative to the application/package root, including within a monorepo. Create only directories and files that have a real use.
+
+| Kind | Default location and filename | Example |
+|---|---|---|
+| Unit test | Beside the target source file, `*.spec.ts` | `src/account/application/account.service.spec.ts` |
+| Integration test | `test/integration/<feature>/**/*.integration-spec.ts` | `test/integration/account/account.repo.integration-spec.ts` |
+| E2E test | `test/e2e/<feature>/**/*.e2e-spec.ts` | `test/e2e/account/account.e2e-spec.ts` |
+| Shared fixture | `test/fixtures/**/*.fixture.ts` | `test/fixtures/account.fixture.ts` |
+| Shared seeder | `test/seeders/**/*.seeder.ts` | `test/seeders/account.seeder.ts` |
+| Test infrastructure and lifecycle support | `test/support/` | `test/support/test-app.ts`, `test/support/test-database.ts` |
+
+- Place a domain unit test beside its model, such as `src/account/domain/account.entity.spec.ts`. Keep the source basename and replace `.ts` with `.spec.ts`.
+- Group integration and E2E tests by the owning feature or workflow. Add deeper directories only when navigation benefits; do not reproduce every production layer in test support.
+- Classify tests by the boundary they execute. A Service test using real persistence is an integration test; an E2E test exercises the intended public API/application path.
+- Keep single-test helpers local. Share fixtures for constructing values, seeders for installing DB test data, and support for application setup, containers, and cleanup only when reuse is useful.
+
+## Test discovery and build scope
+
+- For this default layout, configure independently runnable suites for `src/**/*.spec.ts`, `test/integration/**/*.integration-spec.ts`, and `test/e2e/**/*.e2e-spec.ts`. Adapt these application-relative patterns to the runner's actual root and configuration; do not assume hyphenated suffixes match its default discovery.
+- With Jest, inspect `testMatch` or `testRegex` together with `roots` and `rootDir`. With Vitest, inspect `include`, `exclude`, and project/root configuration. Preserve the adopted runner and setup hooks.
+- Keep suite selection disjoint. Update the relevant package scripts and CI jobs when adding or moving tests, so required suites are neither omitted nor run twice accidentally.
+- Ensure test TypeScript configuration includes tests and their support files with the required aliases and decorator metadata. Exclude colocated specs and `test/` support from production compilation and packaging; production code must not import test helpers.
+- Verify discovered files with the installed runner's listing or targeted execution facility. Confirm each intended suite includes its tests and excludes fixture, seeder, and support modules; an empty successful run is not verification.
+
+See [Jest test discovery](https://jestjs.io/docs/configuration#testmatch-arraystring) and [Vitest include patterns](https://vitest.dev/config/include).
+
 ## Choose the verification boundary
 
 Select the contract, the execution path that must remain real, and the smallest setup that exercises it. Preserve the project's runner, compiler, decorator metadata, test naming, and existing support utilities.

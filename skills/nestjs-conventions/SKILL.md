@@ -35,7 +35,7 @@ Organize by feature, put core business rules in domain models or policies, separ
 | MikroORM entities, context, Unit of Work, loading, optional Kysely | [MikroORM](references/mikro-orm.md), only when MikroORM is used |
 | GraphQL entity results, ORM wrappers and relationship resolution | [GraphQL and MikroORM](references/graphql-mikro-orm.md), when both are used |
 | DB writes, composed operations, concurrency, external effects | [Transactions](references/transactions.md) |
-| Tests, fixtures, isolation, execution boundaries | [Testing](references/testing.md) |
+| Test placement, filenames, discovery, fixtures, isolation, execution boundaries | [Testing](references/testing.md) |
 | SQL, constraints, indexes, migration files | [SQL and migrations](references/sql-migrations.md) |
 
 Load only references relevant to the change. GraphQL, MikroORM, Kysely, and a CQRS bus are optional technologies, not prerequisites.

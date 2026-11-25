@@ -18,6 +18,8 @@ Keep DB access in `persistence` and other integrations in `infrastructure`. Pres
 
 Keep shared capabilities in an existing shared location only when their contract is actually shared. A business feature does not become shared infrastructure because several other features call it. Keep generated files, migrations, and schema resources in their configured tool locations.
 
+Use colocated unit tests and feature-grouped integration/E2E tests under `test/` by default. Follow [Test locations and filenames](testing.md#test-locations-and-filenames) for exact paths, suffixes, shared support, and discovery rules; keep these files outside production runtime imports and build output.
+
 ## Nest registration
 
 - Register HTTP controllers in `controllers`. Register application providers, resolvers, and adapters in `providers` as needed.
