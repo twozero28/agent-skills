@@ -1,0 +1,4 @@
+interface:
+  display_name: "NestJS Conventions"
+  short_description: "NestJS architecture, GraphQL, MikroORM, and testing rules"
+  default_prompt: "Use $nestjs-conventions to implement or review this NestJS change with clear module, domain, and persistence boundaries."
